@@ -1,0 +1,5 @@
+1. 观测数据降低解析量转csv （这里只有一个sheet页，所以不加-a参数了，直接生成在当前目录）
+xlsx2csv.exe .\test_ob.xlsx test_ob.csv
+2. 解析和计算
+python .\eva.py -s .\sim_data_.nc -b .\test_ob.csv -o out.xlsx
+
