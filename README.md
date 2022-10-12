@@ -25,3 +25,4 @@ python .\eva.py -s .\sim_data.nc -b .\2021.csv -o .\2021_out.xlsx
 ```
 > 解释: -s 后跟模拟数据文件 -b 后跟观测数据文件-o 自定义的输出文件名
 
+![example](example/example.png)
