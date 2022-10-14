@@ -132,16 +132,11 @@ def parse_observation(observation_filepath):
     """
     # 去除前3列
     df = df.iloc[:, 3:]
-    # 合并前3列, 格式为 YYYY-MM-DD
-    df["date"] = (
-        df["Year"].astype(str)
-        + "-"
-        + df["Mon"].astype(str)
-        + "-"
-        + df["Day"].astype(str)
-    )
+    # 前3列只保留整数位，合并为 格式为 YYYY-MM-DD
+    df["date"] = df.iloc[:, :3].astype(int).astype(str).apply(lambda x: "-".join(x), axis=1)
     # 去除前3列
     df = df.iloc[:, 3:]
+    print(df)
     # 将date列转化为日期格式
     df["date"] = pd.to_datetime(df["date"])
     # 根据日期排序
@@ -366,6 +361,8 @@ if __name__ == "__main__":
     # 从终端获取参数
     simulation_filepath, observation_filepath, output_filepath = parse_argv()
 
+
+    # parse_observation(observation_filepath)
     # simulation_filepath = r"C:\Users\fanyq\Deskto\store\sim_data_.nc"
     # observation_filepath = r"C:\Users\fanyq\Desktop\store\test_ob.csv"
     # output_filepath = r"C:\Users\fanyq\Desktop\store\out.xlsx"
@@ -376,7 +373,6 @@ if __name__ == "__main__":
     dates_list, Hours_list, PSFC_list, T2_list, RH_list, WS_list = parse_observation(
         observation_filepath
     )
-
     # 写入观测和模拟的数据
     data2excle(
         output_filepath,
