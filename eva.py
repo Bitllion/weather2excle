@@ -422,12 +422,12 @@ def evulation2excle(r_list, MB_list, NMB_list, output_filepath):
 if __name__ == "__main__":
 
     # 从终端获取参数
-    # simulation_filepath, observation_filepath, output_filepath = parse_argv()
+    simulation_filepath, observation_filepath, output_filepath = parse_argv()
 
     # parse_observation(observation_filepath)
-    simulation_filepath = r"C:\Users\fanyq\Desktop\store\source_code\sim_data.nc"
-    observation_filepath = r"C:\Users\fanyq\Desktop\store\source_code\202007ob.csv"
-    output_filepath = r"C:\Users\fanyq\Desktop\store\source_code\out.xlsx"
+    # simulation_filepath = r"C:\Users\fanyq\Desktop\store\source_code\sim_data.nc"
+    # observation_filepath = r"C:\Users\fanyq\Desktop\store\source_code\202007ob.csv"
+    # output_filepath = r"C:\Users\fanyq\Desktop\store\source_code\out.xlsx"
 
     # 解析模拟数据
     d01, d02 = parse_nc(simulation_filepath)

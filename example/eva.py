@@ -132,13 +132,9 @@ def parse_observation(observation_filepath):
     """
     # 去除前3列
     df = df.iloc[:, 3:]
-    # 合并前3列, 格式为 YYYY-MM-DD
+    # 前3列只保留整数位，合并为 格式为 YYYY-MM-DD
     df["date"] = (
-        df["Year"].astype(str)
-        + "-"
-        + df["Mon"].astype(str)
-        + "-"
-        + df["Day"].astype(str)
+        df.iloc[:, :3].astype(int).astype(str).apply(lambda x: "-".join(x), axis=1)
     )
     # 去除前3列
     df = df.iloc[:, 3:]
@@ -151,7 +147,7 @@ def parse_observation(observation_filepath):
     # 重置索引
     df = df.reset_index(drop=True)
 
-    # dates放到list中
+    # dates放到list中o
     dates_list = df["date"].tolist()
     # 只保留年月日
     dates_list = [date.date() for date in dates_list]
@@ -252,15 +248,77 @@ def evaluation(d01, d02, T2_list, RH_list, PSFC_list, WS_list):
     PSFC_list = [float(PSFC) for PSFC in PSFC_list]
     WS_list = [float(WS) for WS in WS_list]
 
-    # 计算相关系数 r
-    r_d01_T2 = np.corrcoef(T2_list, d01[0])[0][1]
-    r_d02_T2 = np.corrcoef(T2_list, d02[0])[0][1]
-    r_d01_RH = np.corrcoef(RH_list, d01[1])[0][1]
-    r_d02_RH = np.corrcoef(RH_list, d02[1])[0][1]
-    r_d01_PSFC = np.corrcoef(PSFC_list, d01[2])[0][1]
-    r_d02_PSFC = np.corrcoef(PSFC_list, d02[2])[0][1]
-    r_d01_WS = np.corrcoef(WS_list, d01[3])[0][1]
-    r_d02_WS = np.corrcoef(WS_list, d02[3])[0][1]
+    """
+    去除nan值
+    """
+    # T2_list 中 含有 999999.0 的值，需要去除，对应的模拟浓度也需要去除
+
+    """
+    去除T2_list中的999999.0
+    """
+    # 构建新的list
+    T2_list_new = []
+    d01_T2_new = []
+    d02_T2_new = []
+
+    # 循环遍历 T2_list，将不为999999.0的值添加到新的list中
+    for i in range(len(T2_list)):
+        if T2_list[i] != 999999.0:
+            T2_list_new.append(T2_list[i])
+            d01_T2_new.append(d01[0][i])
+            d02_T2_new.append(d02[0][i])
+
+    """
+    去除RH_list中的999999.0
+    """
+    RH_list_new = []
+    d01_RH_new = []
+    d02_RH_new = []
+
+    for i in range(len(RH_list)):
+        if RH_list[i] != 999999.0:
+            RH_list_new.append(RH_list[i])
+            d01_RH_new.append(d01[1][i])
+            d02_RH_new.append(d02[1][i])
+
+    """
+    去除PSFC_list中的999999.0
+    """
+
+    PSFC_list_new = []
+    d01_PSFC_new = []
+    d02_PSFC_new = []
+
+    for i in range(len(PSFC_list)):
+        if PSFC_list[i] != 999999.0:
+            PSFC_list_new.append(PSFC_list[i])
+            d01_PSFC_new.append(d01[2][i])
+            d02_PSFC_new.append(d02[2][i])
+    """
+    去除WS_list中的999999.0
+    """
+    WS_list_new = []
+    d01_WS_new = []
+    d02_WS_new = []
+
+    for i in range(len(WS_list)):
+        if WS_list[i] != 999999.0:
+            WS_list_new.append(WS_list[i])
+            d01_WS_new.append(d01[3][i])
+            d02_WS_new.append(d02[3][i])
+
+    """
+    计算相关系数
+    """
+    # 计算r
+    r_d01_T2 = np.corrcoef(d01_T2_new, T2_list_new)[0][1]
+    r_d02_T2 = np.corrcoef(d02_T2_new, T2_list_new)[0][1]
+    r_d01_RH = np.corrcoef(d01_RH_new, RH_list_new)[0][1]
+    r_d02_RH = np.corrcoef(d02_RH_new, RH_list_new)[0][1]
+    r_d01_PSFC = np.corrcoef(d01_PSFC_new, PSFC_list_new)[0][1]
+    r_d02_PSFC = np.corrcoef(d02_PSFC_new, PSFC_list_new)[0][1]
+    r_d01_WS = np.corrcoef(d01_WS_new, WS_list_new)[0][1]
+    r_d02_WS = np.corrcoef(d02_WS_new, WS_list_new)[0][1]
 
     # 打包r
     r_list = [
@@ -275,14 +333,14 @@ def evaluation(d01, d02, T2_list, RH_list, PSFC_list, WS_list):
     ]
 
     # 计算差的均值MB
-    MB_d01_T2 = np.mean(np.array(d01[0]) - np.array(T2_list))
-    MB_d02_T2 = np.mean(np.array(d02[0]) - np.array(T2_list))
-    MB_d01_RH = np.mean(np.array(d01[1]) - np.array(RH_list))
-    MB_d02_RH = np.mean(np.array(d02[1]) - np.array(RH_list))
-    MB_d01_PSFC = np.mean(np.array(d01[2]) - np.array(PSFC_list))
-    MB_d02_PSFC = np.mean(np.array(d02[2]) - np.array(PSFC_list))
-    MB_d01_WS = np.mean(np.array(d01[3]) - np.array(WS_list))
-    MB_d02_WS = np.mean(np.array(d02[3]) - np.array(WS_list))
+    MB_d01_T2 = np.mean(np.array(d01_T2_new[0]) - np.array(T2_list_new))
+    MB_d02_T2 = np.mean(np.array(d02_T2_new[0]) - np.array(T2_list_new))
+    MB_d01_RH = np.mean(np.array(d01_RH_new[0]) - np.array(RH_list_new))
+    MB_d02_RH = np.mean(np.array(d02_RH_new[0]) - np.array(RH_list_new))
+    MB_d01_PSFC = np.mean(np.array(d01_PSFC_new[0]) - np.array(PSFC_list_new))
+    MB_d02_PSFC = np.mean(np.array(d02_PSFC_new[0]) - np.array(PSFC_list_new))
+    MB_d01_WS = np.mean(np.array(d01_WS_new[0]) - np.array(WS_list_new))
+    MB_d02_WS = np.mean(np.array(d02_WS_new[0]) - np.array(WS_list_new))
 
     # 打包MB
     MB_list = [
@@ -297,14 +355,14 @@ def evaluation(d01, d02, T2_list, RH_list, PSFC_list, WS_list):
     ]
 
     # 计算NMB NMB= MB / (观测值均值) * 100
-    NMB_d01_T2 = MB_d01_T2 / np.mean(np.array(T2_list)) * 100
-    NMB_d02_T2 = MB_d02_T2 / np.mean(np.array(T2_list)) * 100
-    NMB_d01_RH = MB_d01_RH / np.mean(np.array(RH_list)) * 100
-    NMB_d02_RH = MB_d02_RH / np.mean(np.array(RH_list)) * 100
-    NMB_d01_PSFC = MB_d01_PSFC / np.mean(np.array(PSFC_list)) * 100
-    NMB_d02_PSFC = MB_d02_PSFC / np.mean(np.array(PSFC_list)) * 100
-    NMB_d01_WS = MB_d01_WS / np.mean(np.array(WS_list)) * 100
-    NMB_d02_WS = MB_d02_WS / np.mean(np.array(WS_list)) * 100
+    NMB_d01_T2 = MB_d01_T2 / np.mean(np.array(T2_list_new)) * 100
+    NMB_d02_T2 = MB_d02_T2 / np.mean(np.array(T2_list_new)) * 100
+    NMB_d01_RH = MB_d01_RH / np.mean(np.array(RH_list_new)) * 100
+    NMB_d02_RH = MB_d02_RH / np.mean(np.array(RH_list_new)) * 100
+    NMB_d01_PSFC = MB_d01_PSFC / np.mean(np.array(PSFC_list_new)) * 100
+    NMB_d02_PSFC = MB_d02_PSFC / np.mean(np.array(PSFC_list_new)) * 100
+    NMB_d01_WS = MB_d01_WS / np.mean(np.array(WS_list_new)) * 100
+    NMB_d02_WS = MB_d02_WS / np.mean(np.array(WS_list_new)) * 100
 
     # 打包NMB
     NMB_list = [
@@ -366,9 +424,10 @@ if __name__ == "__main__":
     # 从终端获取参数
     simulation_filepath, observation_filepath, output_filepath = parse_argv()
 
-    # simulation_filepath = r"C:\Users\fanyq\Deskto\store\sim_data_.nc"
-    # observation_filepath = r"C:\Users\fanyq\Desktop\store\test_ob.csv"
-    # output_filepath = r"C:\Users\fanyq\Desktop\store\out.xlsx"
+    # parse_observation(observation_filepath)
+    # simulation_filepath = r"C:\Users\fanyq\Desktop\store\source_code\sim_data.nc"
+    # observation_filepath = r"C:\Users\fanyq\Desktop\store\source_code\202007ob.csv"
+    # output_filepath = r"C:\Users\fanyq\Desktop\store\source_code\out.xlsx"
 
     # 解析模拟数据
     d01, d02 = parse_nc(simulation_filepath)
