@@ -333,14 +333,14 @@ def evaluation(d01, d02, T2_list, RH_list, PSFC_list, WS_list):
     ]
 
     # 计算差的均值MB
-    MB_d01_T2 = np.mean(np.array(d01_T2_new[0]) - np.array(T2_list_new))
-    MB_d02_T2 = np.mean(np.array(d02_T2_new[0]) - np.array(T2_list_new))
-    MB_d01_RH = np.mean(np.array(d01_RH_new[0]) - np.array(RH_list_new))
-    MB_d02_RH = np.mean(np.array(d02_RH_new[0]) - np.array(RH_list_new))
-    MB_d01_PSFC = np.mean(np.array(d01_PSFC_new[0]) - np.array(PSFC_list_new))
-    MB_d02_PSFC = np.mean(np.array(d02_PSFC_new[0]) - np.array(PSFC_list_new))
-    MB_d01_WS = np.mean(np.array(d01_WS_new[0]) - np.array(WS_list_new))
-    MB_d02_WS = np.mean(np.array(d02_WS_new[0]) - np.array(WS_list_new))
+    MB_d01_T2 = np.mean(np.array(d01_T2_new) - np.array(T2_list_new))
+    MB_d02_T2 = np.mean(np.array(d02_T2_new) - np.array(T2_list_new))
+    MB_d01_RH = np.mean(np.array(d01_RH_new) - np.array(RH_list_new))
+    MB_d02_RH = np.mean(np.array(d02_RH_new) - np.array(RH_list_new))
+    MB_d01_PSFC = np.mean(np.array(d01_PSFC_new) - np.array(PSFC_list_new))
+    MB_d02_PSFC = np.mean(np.array(d02_PSFC_new) - np.array(PSFC_list_new))
+    MB_d01_WS = np.mean(np.array(d01_WS_new) - np.array(WS_list_new))
+    MB_d02_WS = np.mean(np.array(d02_WS_new) - np.array(WS_list_new))
 
     # 打包MB
     MB_list = [
